@@ -12,16 +12,7 @@ namespace BumSimulatorApi.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime Date { get; set; }
-
-        public Character character => new Character {dateTime = new DateTime(2010, 07, 28),
-        happy_level=100,
-        eat_level = 100,
-        health_level = 100,
-        bottles = 10,
-        TrackDay = new DateTime(2010, 07, 28),
-        status = UserRole.Bum,
-        money=500,
-        rating=0
-        };
+        public Character character { get; set; }
+        
     }
 }

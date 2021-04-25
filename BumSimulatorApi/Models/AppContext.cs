@@ -19,9 +19,8 @@ namespace BumSimulatorApi.Models
         public DbSet<NormalWork> NormalWorks { get; set; }
 
 
-        public AppContext()
+        public AppContext(DbContextOptions<AppContext> options): base(options)
         {
-
             Database.EnsureCreated();
         }
 
