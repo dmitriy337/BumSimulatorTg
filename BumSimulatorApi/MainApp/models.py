@@ -184,7 +184,7 @@ class Personage(models.Model):
     happy_level = models.IntegerField(default=100, null=False, verbose_name='Happy level')
     eat_level = models.IntegerField(default=100, null=False, verbose_name='Happy level')
     health_level = models.IntegerField(default=100, null=False, verbose_name='Happy level')
-    house = models.ForeignKey(Houses, null=True ,blank=True, on_delete=models.PROTECT
+    house = models.ForeignKey(Houses, null=True, blank=True, on_delete=models.PROTECT
                               , verbose_name='Personage house')
     transport = models.ForeignKey(Transports, null=True, blank=True, on_delete=models.PROTECT
                                   , verbose_name='Personage transport')
@@ -197,6 +197,10 @@ class Personage(models.Model):
         verbose_name = 'Персонаж'
         ordering = ['money']
 
+    @classmethod
+    def get_new(cls):
+        return cls.objects.create().id
+
 
 class User(models.Model):
     Id = models.IntegerField(unique=True, null=False)
@@ -204,7 +208,9 @@ class User(models.Model):
     Firstname = models.TextField(max_length=100, null=True, verbose_name='First Name')
     LastName = models.TextField(max_length=100, null=True, verbose_name='Last Name')
     Character = models.OneToOneField(Personage,
-          on_delete = models.CASCADE, primary_key = True)
+        on_delete = models.CASCADE,
+        primary_key = True,
+        default=Personage.get_new)
 
     def __str__(self):
         return  ('@' +self.Username + ' ' + self.Firstname)

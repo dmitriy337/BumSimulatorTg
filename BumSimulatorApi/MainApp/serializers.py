@@ -22,4 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['Id', 'Username', 'Firstname', 'LastName', 'Character']
 
-
+    def create(self, validated_data):
+        user = User.objects.create(**validated_data)
+        user.save()
+        return user
