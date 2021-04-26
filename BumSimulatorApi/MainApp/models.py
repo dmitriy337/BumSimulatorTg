@@ -86,6 +86,8 @@ class PersonageWorks(models.Model):
     howMuchEatMax = models.IntegerField(default=1, null=False, verbose_name='Max count of adding eat')
     howMuchHappyMin = models.IntegerField(default=0, null=False, verbose_name='Min count of adding happy')
     howMuchHappyMax = models.IntegerField(default=1, null=False, verbose_name='Max count of adding happy')
+    howMuchRatingMin = models.IntegerField(default=0, null=False, verbose_name='Min count of adding rating')
+    howMuchRatingMax = models.IntegerField(default=1, null=False, verbose_name='Max count of adding rating')
     unlockRating = models.IntegerField(null=False, verbose_name='Min rating for unlock')
 
     def __str__(self):
@@ -109,6 +111,8 @@ class NormalWorks(models.Model):
     howMuchEatMax = models.IntegerField(default=1, null=False, verbose_name='Max count of adding eat')
     howMuchHappyMin = models.IntegerField(default=0, null=False, verbose_name='Min count of adding happy')
     howMuchHappyMax = models.IntegerField(default=1, null=False, verbose_name='Max count of adding happy')
+    howMuchRatingMin = models.IntegerField(default=0, null=False, verbose_name='Min count of adding rating')
+    howMuchRatingMax = models.IntegerField(default=1, null=False, verbose_name='Max count of adding rating')
     unlockRating = models.IntegerField(null=False, verbose_name='Min rating for unlock')
 
     def __str__(self):
@@ -175,6 +179,7 @@ class Personage(models.Model):
     age = models.IntegerField(default=20, null=False, verbose_name='Age')
     money = models.IntegerField(default=500, verbose_name='Money')
     items = models.IntegerField(default=10, verbose_name='Count of bottles')
+    rating = models.IntegerField(default=0, verbose_name='Rating')
     status = models.CharField(
         max_length=2,
         choices=StatusOfBum.choices,

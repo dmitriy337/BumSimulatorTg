@@ -35,6 +35,21 @@ class GetAllEat(APIView):
             {'eat': serealizer.data}
         )
 
+class GetAllNormalWork(APIView):
+    def get(self, request):
+        eats = NormalWorks.objects.all()
+        serealizer = NormalWorkSerializer(eats, many=True)
+        return Response(
+            {'normal_work': serealizer.data}
+        )
+
+class GetAllPersonageWork(APIView):
+    def get(self, request):
+        eats = PersonageWorks.objects.all()
+        serealizer = PersonageWorkSerializer(eats, many=True)
+        return Response(
+            {'personage_work': serealizer.data}
+        )
 
 class GetAllHappy(APIView):
     def get(self, request):
@@ -226,6 +241,158 @@ class ExecuteHealthActivity(APIView):
             character.happy_level = 0
         else:
             character.happy_level +=  addHappy
+
+        character.save()
+        user.save()
+
+        serealizer = UserSerializer(user, many=False)
+        return Response(
+            {'user': serealizer.data}
+        )
+
+
+
+class ExecutePersonageWorks(APIView):
+    def get(self, request, personageWorkId, userId):
+        personageWorks: PersonageWorks = get_object_or_404(PersonageWorks.objects.all(), id=personageWorkId)
+
+        user: User = get_object_or_404(User.objects.all(), Id=userId)
+        character: Personage = Personage.objects.get(id=user.Character.id)
+
+        if character.rating < personageWorks.unlockRating:
+            return Response(
+                {'RatingError'}
+            )
+
+        # Validate eat
+        if personageWorks.howMuchEatMin < personageWorks.howMuchEatMax:
+            addEat = random.randint(personageWorks.howMuchEatMin, personageWorks.howMuchEatMax)
+        else:
+            addEat = random.randint(personageWorks.howMuchEatMax, personageWorks.howMuchEatMin)
+        if (character.eat_level + addEat) >= 100:
+            character.eat_level = 100
+        elif (character.eat_level + addEat) <= 0:
+            character.eat_level = 0
+        else:
+            character.eat_level += addEat
+
+        # Validate health
+        if personageWorks.howMuchHealthMin < personageWorks.howMuchHealthMax:
+            addHealth = random.randint(personageWorks.howMuchHealthMin, personageWorks.howMuchHealthMax)
+        else:
+            addHealth = random.randint(personageWorks.howMuchHealthMax, personageWorks.howMuchHealthMin)
+
+        if (character.health_level + addHealth) >= 100:
+            character.health_level = 100
+        elif (character.health_level + addHealth) <= 0:
+            character.health_level = 0
+        else:
+            character.health_level += addHealth
+
+        # Validate happy
+        if personageWorks.howMuchHappyMin < personageWorks.howMuchHappyMax:
+            addHappy = random.randint(personageWorks.howMuchHappyMin, personageWorks.howMuchHappyMax)
+        else:
+            addHappy = random.randint(personageWorks.howMuchHappyMax, personageWorks.howMuchHappyMin)
+        if (character.happy_level + addHappy) >= 100:
+            character.happy_level = 100
+        elif (character.happy_level + addHappy) <= 0:
+            character.happy_level = 0
+        else:
+            character.happy_level += addHappy
+
+
+        if personageWorks.HowMuchEarningsMin < personageWorks.HowMuchEarningsMax:
+            addEarnings = random.randint(personageWorks.HowMuchEarningsMin, personageWorks.HowMuchEarningsMax)
+        else:
+            addEarnings = random.randint(personageWorks.HowMuchEarningsMax, personageWorks.HowMuchEarningsMin)
+
+        character.money += addEarnings
+
+        if personageWorks.HowMuchEarningsItemsMin < personageWorks.HowMuchEarningsItemsMax:
+            addEarningItems = random.randint(personageWorks.HowMuchEarningsItemsMin, personageWorks.HowMuchEarningsItemsMax)
+        else:
+            addEarningItems = random.randint(personageWorks.HowMuchEarningsItemsMax, personageWorks.HowMuchEarningsItemsMin)
+
+        character.items += addEarningItems
+        addRating = random.randint(personageWorks.howMuchRatingMin, personageWorks.howMuchRatingMax)
+        character.rating += addRating
+        character.save()
+        user.save()
+
+        serealizer = UserSerializer(user, many=False)
+        return Response(
+            {'user': serealizer.data}
+        )
+
+
+
+class ExecuteNormalWorks(APIView):
+    def get(self, request, normalWorkId, userId):
+        personageWorks: NormalWorks = get_object_or_404(NormalWorks.objects.all(), id=personageWorkId)
+
+        user: User = get_object_or_404(User.objects.all(), Id=userId)
+        character: Personage = Personage.objects.get(id=user.Character.id)
+
+        if character.rating < personageWorks.unlockRating:
+            return Response(
+                {'RatingError'}
+            )
+
+        # Validate eat
+        if personageWorks.howMuchEatMin < personageWorks.howMuchEatMax:
+            addEat = random.randint(personageWorks.howMuchEatMin, personageWorks.howMuchEatMax)
+        else:
+            addEat = random.randint(personageWorks.howMuchEatMax, personageWorks.howMuchEatMin)
+        if (character.eat_level + addEat) >= 100:
+            character.eat_level = 100
+        elif (character.eat_level + addEat) <= 0:
+            character.eat_level = 0
+        else:
+            character.eat_level += addEat
+
+        # Validate health
+        if personageWorks.howMuchHealthMin < personageWorks.howMuchHealthMax:
+            addHealth = random.randint(personageWorks.howMuchHealthMin, personageWorks.howMuchHealthMax)
+        else:
+            addHealth = random.randint(personageWorks.howMuchHealthMax, personageWorks.howMuchHealthMin)
+
+        if (character.health_level + addHealth) >= 100:
+            character.health_level = 100
+        elif (character.health_level + addHealth) <= 0:
+            character.health_level = 0
+        else:
+            character.health_level += addHealth
+
+        # Validate happy
+        if personageWorks.howMuchHappyMin < personageWorks.howMuchHappyMax:
+            addHappy = random.randint(personageWorks.howMuchHappyMin, personageWorks.howMuchHappyMax)
+        else:
+            addHappy = random.randint(personageWorks.howMuchHappyMax, personageWorks.howMuchHappyMin)
+        if (character.happy_level + addHappy) >= 100:
+            character.happy_level = 100
+        elif (character.happy_level + addHappy) <= 0:
+            character.happy_level = 0
+        else:
+            character.happy_level += addHappy
+
+
+        if personageWorks.HowMuchEarningsMin < personageWorks.HowMuchEarningsMax:
+            addEarnings = random.randint(personageWorks.HowMuchEarningsMin, personageWorks.HowMuchEarningsMax)
+        else:
+            addEarnings = random.randint(personageWorks.HowMuchEarningsMax, personageWorks.HowMuchEarningsMin)
+
+        character.money += addEarnings
+
+        if personageWorks.HowMuchEarningsItemsMin < personageWorks.HowMuchEarningsItemsMax:
+            addEarningItems = random.randint(personageWorks.HowMuchEarningsItemsMin, personageWorks.HowMuchEarningsItemsMax)
+        else:
+            addEarningItems = random.randint(personageWorks.HowMuchEarningsItemsMax, personageWorks.HowMuchEarningsItemsMin)
+
+        character.items += addEarningItems
+
+        addRating = random.randint(personageWorks.howMuchRatingMin, personageWorks.howMuchRatingMax)
+        character.rating += addRating
 
         character.save()
         user.save()

@@ -8,7 +8,7 @@ from .models import *
 class CharacterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Personage
-        fields = ['age', 'money', 'items',
+        fields = ['age', 'money', 'items', 'rating',
                   'status', 'date', 'dateToTrack',
                   'happy_level', 'eat_level', 'health_level', 'house', 'transport']
 
@@ -44,6 +44,20 @@ class HappySerializer(serializers.ModelSerializer):
                   'howMuchHealthMin', 'howMuchHealthMax',
                   'howMuchEatMin', 'howMuchEatMax',
                   'howMuchHappyMin', 'howMuchHappyMax']
+
+
+class NormalWorkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NormalWorks
+        fields = ['id', 'name', 'description',
+                  'unlockRating']
+
+
+class PersonageWorkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonageWorks
+        fields = ['id', 'name', 'description',
+                  'unlockRating']
 
 
 class HealthSerializer(serializers.ModelSerializer):
