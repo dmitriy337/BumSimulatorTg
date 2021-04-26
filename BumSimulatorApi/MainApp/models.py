@@ -12,10 +12,6 @@ class StatusOfBum(models.TextChoices):
     Bum_5 = ('5','Искатель счастья')
 
 
-
-
-
-
 class Eat_activity(models.Model):
     name = models.TextField(max_length=100, null=True, verbose_name='Name of eat')
     description = models.TextField(max_length=100, null=True, verbose_name='Description of eat')
@@ -26,8 +22,14 @@ class Eat_activity(models.Model):
     howMuchEatMax = models.IntegerField(default=1, null=False, verbose_name='Max count of adding eat')
     howMuchHappyMin = models.IntegerField(default=0, null=False, verbose_name='Min count of adding happy')
     howMuchHappyMax = models.IntegerField(default=1, null=False, verbose_name='Max count of adding happy')
+
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name_plural = 'Действия для еды'
+        verbose_name = 'Действие для еды'
+        ordering = ['price']
 
 
 class Happy_activity(models.Model):
@@ -44,6 +46,12 @@ class Happy_activity(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = 'Действия для счастья'
+        verbose_name = 'Действиe для счастья'
+        ordering = ['price']
+
+
 
 class Health_activity(models.Model):
     name = models.TextField(max_length=100, null=True, verbose_name='Name of Health')
@@ -58,6 +66,11 @@ class Health_activity(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name_plural = 'Действия для здоровья'
+        verbose_name = 'Действиe для здоровья'
+        ordering = ['price']
 
 
 class PersonageWorks(models.Model):
@@ -78,6 +91,12 @@ class PersonageWorks(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = 'Работы персонажа'
+        verbose_name = 'Работа персонажа'
+        ordering = ['HowMuchEarningsMin']
+
+
 
 class NormalWorks(models.Model):
     name = models.TextField(max_length=100, null=True, verbose_name='Name of NormalWork')
@@ -95,16 +114,28 @@ class NormalWorks(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = 'Нормальные работы'
+        verbose_name = 'Нормальная работа'
+        ordering = ['HowMuchEarningsMin']
+
+
 
 class Learning_params(models.Model):
     name = models.TextField(max_length=100, null=True, verbose_name='Name of Learning')
     description = models.TextField(max_length=100, null=True, verbose_name='Description of Learning')
-    price = models.IntegerField(default=0, null=False, verbose_name='Min count of adding money')
-    howMuchRating = models.IntegerField(default=0, null=False, verbose_name='Count of adding rating')
+    price = models.IntegerField(default=0, null=False, verbose_name='Price')
+    howMuchRating = models.IntegerField(default=0, null=False, verbose_name='how Much Rating')
     unlockRating = models.IntegerField(null=False, verbose_name='Min rating for unlock')
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name_plural = 'Обучение'
+        verbose_name = 'Обучение'
+        ordering = ['price']
+
 
 
 class Houses(models.Model):
@@ -117,6 +148,11 @@ class Houses(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = 'Дома'
+        verbose_name = 'Дом'
+        ordering = ['price']
+
 
 class Transports(models.Model):
     name = models.TextField(max_length=100, null=True, verbose_name='Name of Transport')
@@ -127,6 +163,11 @@ class Transports(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name_plural = 'Транспорты'
+        verbose_name = 'Транспорт'
+        ordering = ['price']
 
 
 class Personage(models.Model):
@@ -151,6 +192,11 @@ class Personage(models.Model):
     def __str__(self):
         return str(self.id)
 
+    class Meta:
+        verbose_name_plural = 'Персонажи'
+        verbose_name = 'Персонаж'
+        ordering = ['money']
+
 
 class User(models.Model):
     Id = models.IntegerField(unique=True, null=False)
@@ -161,3 +207,8 @@ class User(models.Model):
 
     def __str__(self):
         return  ('@' +self.Username + ' ' + self.Firstname)
+
+    class Meta:
+        verbose_name_plural = 'Пользователи'
+        verbose_name = 'Пользователь'
+        ordering = ['Username']
