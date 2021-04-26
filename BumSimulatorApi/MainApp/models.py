@@ -203,7 +203,8 @@ class User(models.Model):
     Username = models.TextField(max_length=100, null=True, verbose_name='User Name')
     Firstname = models.TextField(max_length=100, null=True, verbose_name='First Name')
     LastName = models.TextField(max_length=100, null=True, verbose_name='Last Name')
-    Character = models.OneToOneField(Personage, on_delete=models.CASCADE)
+    Character = models.OneToOneField(Personage,
+          on_delete = models.CASCADE, primary_key = True)
 
     def __str__(self):
         return  ('@' +self.Username + ' ' + self.Firstname)
