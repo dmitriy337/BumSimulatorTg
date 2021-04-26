@@ -171,6 +171,7 @@ class Transports(models.Model):
 
 
 class Personage(models.Model):
+    id = models.AutoField(primary_key=True)
     age = models.IntegerField(default=20, null=False, verbose_name='Age')
     money = models.IntegerField(default=500, verbose_name='Money')
     items = models.IntegerField(default=10, verbose_name='Count of bottles')
