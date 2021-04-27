@@ -88,7 +88,7 @@ class PersonageWorks(models.Model):
     howMuchHappyMax = models.IntegerField(default=1, null=False, verbose_name='Max count of adding happy')
     howMuchRatingMin = models.IntegerField(default=0, null=False, verbose_name='Min count of adding rating')
     howMuchRatingMax = models.IntegerField(default=1, null=False, verbose_name='Max count of adding rating')
-    unlockRating = models.IntegerField(null=False, verbose_name='Min rating for unlock')
+    unlockRating = models.IntegerField(null=False, default=0, verbose_name='Min rating for unlock')
 
     def __str__(self):
         return self.name
@@ -113,7 +113,7 @@ class NormalWorks(models.Model):
     howMuchHappyMax = models.IntegerField(default=1, null=False, verbose_name='Max count of adding happy')
     howMuchRatingMin = models.IntegerField(default=0, null=False, verbose_name='Min count of adding rating')
     howMuchRatingMax = models.IntegerField(default=1, null=False, verbose_name='Max count of adding rating')
-    unlockRating = models.IntegerField(null=False, verbose_name='Min rating for unlock')
+    unlockRating = models.IntegerField(null=False, default=0, verbose_name='Min rating for unlock')
 
     def __str__(self):
         return self.name

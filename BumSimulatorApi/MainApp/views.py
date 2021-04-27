@@ -16,6 +16,14 @@ class GetAllUsers(APIView):
             {'users': serealizer.data}
         )
 
+class Get_user(APIView):
+    def get(self, request, userId):
+        user = get_object_or_404(User.objects.all(), Id=userId)
+
+        serealizer = UserSerializer(user, many=False)
+        return Response(
+            {'user': serealizer.data}
+        )
 
 class Create_user(APIView):
     def post(self, request):
