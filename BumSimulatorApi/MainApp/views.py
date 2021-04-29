@@ -6,7 +6,19 @@ from rest_framework.generics import get_object_or_404
 from .models import *
 from  .serializers import *
 import random
+import logging, datetime
 
+logger = logging.getLogger(__name__)
+
+
+def User_die(userId: int):
+    user: User = get_object_or_404(User.objects.all(), Id=userId)
+    character: Personage = Personage.objects.get(id=user.Character.id)
+    character.delete()
+    user.delete()
+    return Response(
+        'Die_success'
+    )
 
 class GetAllUsers(APIView):
     def get(self, request):
@@ -18,12 +30,26 @@ class GetAllUsers(APIView):
 
 class Get_user(APIView):
     def get(self, request, userId):
+        logger.error("LOG Get_user " + str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
         user = get_object_or_404(User.objects.all(), Id=userId)
 
         serealizer = UserSerializer(user, many=False)
         return Response(
             {'user': serealizer.data}
         )
+
+class Delete_user(APIView):
+    def get(self, request, userId):
+        logger.error("LOG Delete_user " + str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
+
+        user: User = get_object_or_404(User.objects.all(), Id=userId)
+        character: Personage =  Personage.objects.get(id=user.Character.id)
+        character.delete()
+        user.delete()
+        return Response(
+            'success'
+        )
+
 
 class Create_user(APIView):
     def post(self, request):
@@ -37,7 +63,8 @@ class Create_user(APIView):
 
 class GetAllEat(APIView):
     def get(self, request):
-        eats = Eat_activity.objects.all()
+        logger.error("LOG GetAllEat "+ str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
+        eats = Eat_activity.objects.all().order_by('price')
         serealizer = EatSerializer(eats, many=True)
         return Response(
             {'eat': serealizer.data}
@@ -45,6 +72,7 @@ class GetAllEat(APIView):
 
 class GetAllNormalWork(APIView):
     def get(self, request):
+        logger.error("LOG GetAllNormalWork "+ str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
         eats = NormalWorks.objects.all()
         serealizer = NormalWorkSerializer(eats, many=True)
         return Response(
@@ -53,6 +81,7 @@ class GetAllNormalWork(APIView):
 
 class GetAllPersonageWork(APIView):
     def get(self, request):
+        logger.error("LOG GetAllPersonageWork "+ str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
         eats = PersonageWorks.objects.all()
         serealizer = PersonageWorkSerializer(eats, many=True)
         return Response(
@@ -61,7 +90,8 @@ class GetAllPersonageWork(APIView):
 
 class GetAllHappy(APIView):
     def get(self, request):
-        happies = Happy_activity.objects.all()
+        logger.error("LOG GetAllHappy "+ str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
+        happies = Happy_activity.objects.all().order_by('price')
         serealizer = HappySerializer(happies, many=True)
         return Response(
             {'happy': serealizer.data}
@@ -70,7 +100,8 @@ class GetAllHappy(APIView):
 
 class GetAllHealth(APIView):
     def get(self, request):
-        Health = Health_activity.objects.all()
+        logger.error("LOG GetAllHealth"+ str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
+        Health = Health_activity.objects.all().order_by('price')
         serealizer = HealthSerializer(Health, many=True)
         return Response(
             {'health': serealizer.data}
@@ -79,6 +110,7 @@ class GetAllHealth(APIView):
 
 class GetAllHouses(APIView):
     def get(self, request):
+        logger.error("LOG GetAllHouses " + str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
         house = Houses.objects.all()
         serealizer = HouseSerializer(house, many=True)
         return Response(
@@ -88,6 +120,7 @@ class GetAllHouses(APIView):
 
 class GetAllLearnings(APIView):
     def get(self, request):
+        logger.error("LOG GetAllLearnings " + str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
         Learning = Learning_params.objects.all()
         serealizer = LearningSerializer(Learning, many=True)
         return Response(
@@ -97,6 +130,7 @@ class GetAllLearnings(APIView):
 
 class GetAllTransports(APIView):
     def get(self, request):
+        logger.error("LOG GetAllTransports " + str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
         transports = Transports.objects.all()
         serealizer = TransportSerializer(transports, many=True)
         return Response(
@@ -105,12 +139,17 @@ class GetAllTransports(APIView):
 
 class ExecuteEatActivity(APIView):
     def get(self, request, eatId, userId):
-
+        logger.error("LOG ExecuteEatActivity " + str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
         eat: Eat_activity = get_object_or_404(Eat_activity.objects.all(), id=eatId)
 
         user: User = get_object_or_404(User.objects.all(), Id=userId)
 
         character: Personage =  Personage.objects.get(id=user.Character.id)
+
+        if (character.money - eat.price) < 0:
+            return Response('not_enought_money'
+        )
+        character.money -= eat.price
 
         # Validate eat
         if eat.howMuchEatMin < eat.howMuchEatMax:
@@ -120,7 +159,8 @@ class ExecuteEatActivity(APIView):
         if (character.eat_level + addEat) >= 100:
             character.eat_level = 100
         elif (character.eat_level + addEat) <= 0:
-            character.eat_level = 0
+            User_die(userId=user.Id)
+            return Response("Eat_die")
         else:
             character.eat_level += addEat
 
@@ -132,7 +172,8 @@ class ExecuteEatActivity(APIView):
         if (character.health_level + addHealth) >= 100:
             character.health_level = 100
         elif (character.health_level + addHealth) <= 0:
-            character.health_level = 0
+            User_die(userId=user.Id)
+            return Response("Health_die")
         else:
             character.health_level += addHealth
 
@@ -144,7 +185,8 @@ class ExecuteEatActivity(APIView):
         if (character.happy_level + addHappy) >= 100:
             character.happy_level = 100
         elif (character.happy_level + addHappy) <= 0:
-            character.happy_level = 0
+            User_die(userId=user.Id)
+            return Response("Happy_die")
         else:
             character.happy_level +=  addHappy
 
@@ -157,9 +199,15 @@ class ExecuteEatActivity(APIView):
 
 class ExecuteHappyActivity(APIView):
     def get(self, request, happyId, userId):
+        logger.error("LOG ExecuteHappyActivity " + str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
         happy: Happy_activity = get_object_or_404(Happy_activity.objects.all(), id=happyId)
         user: User = get_object_or_404(User.objects.all(), Id=userId)
         character: Personage =  Personage.objects.get(id=user.Character.id)
+
+        if (character.money - happy.price) < 0:
+            return Response('not_enought_money'
+        )
+        character.money -= happy.price
 
         #Validate eat
         if happy.howMuchEatMin < happy.howMuchEatMax:
@@ -169,7 +217,8 @@ class ExecuteHappyActivity(APIView):
         if (character.eat_level + addEat) >= 100:
             character.eat_level = 100
         elif (character.eat_level + addEat) <= 0:
-            character.eat_level = 0
+            User_die(userId=user.Id)
+            return Response("Eat_die")
         else:
             character.eat_level += addEat
 
@@ -182,7 +231,8 @@ class ExecuteHappyActivity(APIView):
         if (character.health_level + addHealth) >= 100:
             character.health_level = 100
         elif (character.health_level + addHealth) <= 0:
-            character.health_level = 0
+            User_die(userId=user.Id)
+            return Response("Health_die")
         else:
             character.health_level += addHealth
 
@@ -194,7 +244,8 @@ class ExecuteHappyActivity(APIView):
         if (character.happy_level + addHappy) >= 100:
             character.happy_level = 100
         elif (character.happy_level + addHappy) <= 0:
-            character.happy_level = 0
+            User_die(userId=user.Id)
+            return Response("Happy_die")
         else:
             character.happy_level +=  addHappy
 
@@ -209,9 +260,15 @@ class ExecuteHappyActivity(APIView):
 
 class ExecuteHealthActivity(APIView):
     def get(self, request, healthId, userId):
+        logger.error("LOG ExecuteHealthActivity " + str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
         health: Health_activity = get_object_or_404(Health_activity.objects.all(), id=healthId)
         user: User = get_object_or_404(User.objects.all(), Id=userId)
         character: Personage =  Personage.objects.get(id=user.Character.id)
+
+        if (character.money - health.price) < 0:
+            return Response('not_enought_money'
+        )
+        character.money -= health.price
 
         #Validate eat
         if health.howMuchEatMin < health.howMuchEatMax:
@@ -221,7 +278,8 @@ class ExecuteHealthActivity(APIView):
         if (character.eat_level + addEat) >= 100:
             character.eat_level = 100
         elif (character.eat_level + addEat) <= 0:
-            character.eat_level = 0
+            User_die(userId=user.Id)
+            return Response("Eat_die")
         else:
             character.eat_level += addEat
 
@@ -234,7 +292,8 @@ class ExecuteHealthActivity(APIView):
         if (character.health_level + addHealth) >= 100:
             character.health_level = 100
         elif (character.health_level + addHealth) <= 0:
-            character.health_level = 0
+            User_die(userId=user.Id)
+            return Response("Health_die")
         else:
             character.health_level += addHealth
 
@@ -246,7 +305,8 @@ class ExecuteHealthActivity(APIView):
         if (character.happy_level + addHappy) >= 100:
             character.happy_level = 100
         elif (character.happy_level + addHappy) <= 0:
-            character.happy_level = 0
+            User_die(userId=user.Id)
+            return Response("Happy_die")
         else:
             character.happy_level +=  addHappy
 
@@ -262,6 +322,7 @@ class ExecuteHealthActivity(APIView):
 
 class ExecutePersonageWorks(APIView):
     def get(self, request, personageWorkId, userId):
+        logger.error("LOG ExecutePersonageWorks " + str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
         personageWorks: PersonageWorks = get_object_or_404(PersonageWorks.objects.all(), id=personageWorkId)
 
         user: User = get_object_or_404(User.objects.all(), Id=userId)
@@ -280,7 +341,8 @@ class ExecutePersonageWorks(APIView):
         if (character.eat_level + addEat) >= 100:
             character.eat_level = 100
         elif (character.eat_level + addEat) <= 0:
-            character.eat_level = 0
+            User_die(userId=user.Id)
+            return Response("Eat_die")
         else:
             character.eat_level += addEat
 
@@ -293,7 +355,8 @@ class ExecutePersonageWorks(APIView):
         if (character.health_level + addHealth) >= 100:
             character.health_level = 100
         elif (character.health_level + addHealth) <= 0:
-            character.health_level = 0
+            User_die(userId=user.Id)
+            return Response("Health_die")
         else:
             character.health_level += addHealth
 
@@ -305,7 +368,8 @@ class ExecutePersonageWorks(APIView):
         if (character.happy_level + addHappy) >= 100:
             character.happy_level = 100
         elif (character.happy_level + addHappy) <= 0:
-            character.happy_level = 0
+            User_die(userId=user.Id)
+            return Response("Happy_die")
         else:
             character.happy_level += addHappy
 
@@ -337,6 +401,7 @@ class ExecutePersonageWorks(APIView):
 
 class ExecuteNormalWorks(APIView):
     def get(self, request, normalWorkId, userId):
+        logger.error("LOG ExecuteNormalWorks " + str(datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')))
         personageWorks: NormalWorks = get_object_or_404(NormalWorks.objects.all(), id=personageWorkId)
 
         user: User = get_object_or_404(User.objects.all(), Id=userId)
@@ -355,7 +420,8 @@ class ExecuteNormalWorks(APIView):
         if (character.eat_level + addEat) >= 100:
             character.eat_level = 100
         elif (character.eat_level + addEat) <= 0:
-            character.eat_level = 0
+            User_die(userId=user.Id)
+            return Response("Eat_die")
         else:
             character.eat_level += addEat
 
@@ -368,7 +434,8 @@ class ExecuteNormalWorks(APIView):
         if (character.health_level + addHealth) >= 100:
             character.health_level = 100
         elif (character.health_level + addHealth) <= 0:
-            character.health_level = 0
+            User_die(userId=user.Id)
+            return Response("Health_die")
         else:
             character.health_level += addHealth
 
@@ -380,7 +447,8 @@ class ExecuteNormalWorks(APIView):
         if (character.happy_level + addHappy) >= 100:
             character.happy_level = 100
         elif (character.happy_level + addHappy) <= 0:
-            character.happy_level = 0
+            User_die(userId=user.Id)
+            return Response("Happy_die")
         else:
             character.happy_level += addHappy
 

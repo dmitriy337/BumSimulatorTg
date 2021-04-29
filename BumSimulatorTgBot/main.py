@@ -12,60 +12,182 @@ import Services, asyncio
 bot = Bot(token=Config.Token)
 dp = Dispatcher(bot)
 
+lol = lambda lst, sz: [lst[i:i+sz] for i in range(0, len(lst), sz)]
+
+
+
+
 # keyboards.py
-inline_btn_profile = InlineKeyboardButton('Герой', callback_data='Profile')
-inline_btn_eat_happy = InlineKeyboardButton('Еда/Настроение', callback_data='Eat_Happy')
-inline_btn_health = InlineKeyboardButton('Здороьве', callback_data='Health')
-inline_btn_earn_money = InlineKeyboardButton('Зароботок', callback_data='EarnMoney')
-
-inline_btn_BumWork = InlineKeyboardButton('Бродяжничество', callback_data='BumWork')
-inline_btn_NormalWork = InlineKeyboardButton('Нормальная работа', callback_data='NormalWork')
-
+inline_btn_profile = InlineKeyboardButton('Герой👨‍🦰', callback_data='btnM_Profile')
+inline_btn_health = InlineKeyboardButton('Здоровье❤️', callback_data='btnM_Health')
+inline_btn_eat = InlineKeyboardButton('Еда🍆', callback_data='btnM_Eat')
+inline_btn_happy = InlineKeyboardButton('Счастье😁', callback_data='btnM_Happy')
+inline_btn_earn_money = InlineKeyboardButton('Заработок💸', callback_data='btnM_EarnMoney')
 menuKb = InlineKeyboardMarkup(row_width=3).add(inline_btn_profile)
-menuKb.row(inline_btn_eat_happy, inline_btn_health)
+menuKb.row(inline_btn_health, inline_btn_eat, inline_btn_happy, )
 menuKb.row(inline_btn_earn_money)
+
+
+inline_btn_BumWork = InlineKeyboardButton('Бродяжничество', callback_data='btnM_BumWork')
+inline_btn_NormalWork = InlineKeyboardButton('Нормальная работа', callback_data='btnM_NormalWork')
+
+
 
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
-    responceMsg = await message.reply("Начинаю регистрацию...")
+    Msg = await  bot.send_message(message.chat.id,"Начинаю регистрацию...")
     await bot.send_chat_action(message.chat.id, types.ChatActions.TYPING)
     Services.RegisterNewUser(message.from_user.id, message.from_user.username, message.from_user.first_name, message.from_user.last_name)
-    await bot.send_message(message.chat.id, 'Зарегестрирован!')
+    await Msg.edit_text('Зарегестрирован!')
+    #await bot.send_message(message.chat.id, 'Зарегестрирован!')
     await asyncio.sleep(3)
     JsonR = Services.GetUserPersonage(message.chat.id)
     await bot.send_message(message.chat.id, Services.FormatUserToBeautifullMsg(JsonR), reply_markup=menuKb)
 
 
-@dp.callback_query_handler()
+async def NotRegistered(userId):
+    await bot.send_message(userId, "Вы не зарегестрированны\nОтправьте /start для регистрации))")
+
+
+@dp.callback_query_handler(regexp='^btnM_')
 async def process_callback_button1(callback_query: types.CallbackQuery):
-    await bot.answer_callback_query(callback_query.id)
+    if Services.GetUserPersonage(callback_query.from_user.id) == "NotRegistered":
+        await NotRegistered(callback_query.from_user.id)
+        return 0
 
-    if callback_query.data == 'Profile':
-        JsonR = Services.GetUserPersonage(callback_query.from_user.id)
-        await bot.send_message(callback_query.from_user.id, Services.FormatUserToBeautifullMsg(JsonR))
+    if callback_query.data == 'btnM_Profile':
+        await bot.send_message(callback_query.from_user.id, Services.FormatUserToBeautifullMsg(Services.GetUserPersonage(callback_query.from_user.id)))
 
         
-    elif callback_query.data == 'Eat_Happy':
-        JsonR = Services.GetUserPersonage(callback_query.from_user.id)
+    elif callback_query.data == 'btnM_Eat':
+        resultJson = CreateEatMurkup()
+        await callback_query.message.edit_text(Services.FormatUserToBeautifullMsg(Services.GetUserPersonage(callback_query.from_user.id)),
+         reply_markup=resultJson)
         
-        EatJson = Services.GetEat()
-        HappyJson = Services.GetHappy() 
-        resultJson = {"inline_keyboard": []}
+    
+    elif callback_query.data == 'btnM_Happy':
+        await callback_query.message.edit_text(Services.FormatUserToBeautifullMsg(Services.GetUserPersonage(callback_query.from_user.id)),
+         reply_markup=CreateHappyMurkup())
 
-        for eat_activity in EatJson['eat']:
-            resultJson['inline_keyboard'].append([{"text":  f"{eat_activity['name']}\n{str(eat_activity['price'])}₽",
-            "callback_data": f"{'eat_'+str(eat_activity['id'])}"}])
+    elif callback_query.data == 'btnM_Health':
+        resultJson = CreateHealthMurkup()
+        await callback_query.message.edit_text(Services.FormatUserToBeautifullMsg(Services.GetUserPersonage(callback_query.from_user.id)),
+         reply_markup=resultJson)
 
 
-        await bot.send_message(callback_query.from_user.id, Services.FormatUserToBeautifullMsg(JsonR), reply_markup=resultJson)
+@dp.callback_query_handler(regexp='^Menu')
+async def process_callback_button1(callback_query: types.CallbackQuery):
+    if Services.GetUserPersonage(callback_query.from_user.id) == "NotRegistered":
+        await NotRegistered(callback_query.from_user.id)
+        return 0
+
+    await callback_query.message.edit_text(Services.FormatUserToBeautifullMsg(Services.GetUserPersonage(callback_query.from_user.id)),
+         reply_markup=menuKb)
+
+
+
+@dp.callback_query_handler(regexp='^eat_')
+async def process_callback_button1(callback_query: types.CallbackQuery):
+    if Services.GetUserPersonage(callback_query.from_user.id) == "NotRegistered":
+        NotRegistered(callback_query.from_user.id)
+        return 0
+
+    executeResult = await Services.ExecuteEatActivity(eatId=callback_query.data.replace('eat_',''), userId=callback_query.from_user.id)
+    if executeResult == 'NotHaveMoney':
+        await bot.answer_callback_query(callback_query.id, text="Тебе не хватает денег на это))", show_alert=True)
+    elif executeResult == 'Eat_die':
+        await bot.answer_callback_query(callback_query.id, text="Ты помер с голоду)))", show_alert=True)
+    elif executeResult == 'Health_die':
+        await bot.answer_callback_query(callback_query.id, text="Ты помер)))", show_alert=True)
+        await bot.send_chat_action(callback_query.from_user.id, types.ChatActions.TYPING)
+        await bot.send_message(callback_query.from_user.id, "/start")
+    elif executeResult == 'Happy_die':
+        await bot.answer_callback_query(callback_query.id, text="Ты повесился))))", show_alert=True)
+    else:        
+        await callback_query.message.edit_text(Services.FormatUserToBeautifullMsg(Services.GetUserPersonage(callback_query.from_user.id)),
+            reply_markup=CreateEatMurkup())
+
+@dp.callback_query_handler(regexp='^happy_')
+async def process_callback_button1(callback_query: types.CallbackQuery):
+    if Services.GetUserPersonage(callback_query.from_user.id) == "NotRegistered":
+        NotRegistered(callback_query.from_user.id)
+        return 0
+
+    executeResult = await Services.ExecuteHappyActivity(happyId=callback_query.data.replace('happy_',''), userId=callback_query.from_user.id)
+    if executeResult == 'NotHaveMoney':
+        await bot.answer_callback_query(callback_query.id, text="Тебе не хватает денег на это))", show_alert=True)
+    else:        
+        await callback_query.message.edit_text(Services.FormatUserToBeautifullMsg(Services.GetUserPersonage(callback_query.from_user.id)),
+            reply_markup=CreateHappyMurkup())
+
+
+@dp.callback_query_handler(regexp='^health_')
+async def process_callback_button1(callback_query: types.CallbackQuery):
+    if Services.GetUserPersonage(callback_query.from_user.id) == "NotRegistered":
+        NotRegistered(callback_query.from_user.id)
+        return 0
+
+    executeResult = await Services.ExecuteHealthActivity(healthId=callback_query.data.replace('health_',''), userId=callback_query.from_user.id)
+
+    if executeResult == 'NotHaveMoney':
+        await bot.answer_callback_query(callback_query.id, text="Тебе не хватает денег на это)", show_alert=True)
+    else:        
+        await callback_query.message.edit_text(Services.FormatUserToBeautifullMsg(Services.GetUserPersonage(callback_query.from_user.id)),
+            reply_markup=CreateHealthMurkup())
+
+
+
+
+def CreateEatMurkup():
+    EatJson = Services.GetEat()
+    resultJson = {"inline_keyboard": []}
+    
+    eatbtnsList=[]
+    
+    for eat_activity in EatJson['eat']:
+        eatbtnsList.append({"text":  f"{eat_activity['name']}\n{str(eat_activity['price'])}₽",
+        "callback_data": f"{'eat_'+str(eat_activity['id'])}"})
+
+
+    resultJson['inline_keyboard'] = (lol(eatbtnsList, 2))
+    resultJson['inline_keyboard'].append([{"text":"Назад","callback_data":"Menu"}])
+    return resultJson
+
+def CreateHappyMurkup():
+    HappyJson = Services.GetHappy() 
+    resultJson = {"inline_keyboard": []}
+
+    happybtnsList=[]
+    for eat_activity in HappyJson['happy']:
+        happybtnsList.append({"text":  f"{eat_activity['name']}\n{str(eat_activity['price'])}₽",
+        "callback_data": f"{'happy_'+str(eat_activity['id'])}"})
+
+    resultJson['inline_keyboard']= (lol(happybtnsList, 2))
+    resultJson['inline_keyboard'].append([{"text":"Назад","callback_data":"Menu"}])
+    return resultJson
+
+def CreateHealthMurkup():
+    HappyJson = Services.GetHealth() 
+    resultJson = {"inline_keyboard": []}
+
+    healthbtnsList=[]
+    for eat_activity in HappyJson['health']:
+        healthbtnsList.append({"text":  f"{eat_activity['name']}\n{str(eat_activity['price'])}₽",
+        "callback_data": f"{'health_'+str(eat_activity['id'])}"})
+
+    resultJson['inline_keyboard'] = (lol(healthbtnsList, 2))
+    resultJson['inline_keyboard'].append([{"text":"Назад","callback_data":"Menu"}])
+    return resultJson
 
 
 @dp.message_handler()
 async def echo_message(msg: types.Message):
-    await bot.send_message(msg.from_user.id, msg.text)
-    JsonR = Services.GetUserPersonage(msg.chat.id)
-    await bot.send_message(msg.chat.id, Services.FormatUserToBeautifullMsg(JsonR), reply_markup=menuKb)
+    if Services.GetUserPersonage(msg.from_user.id) == "NotRegistered":
+        NotRegistered(msg.from_user.id)
+        return 0
+
+    await bot.send_message(msg.chat.id, Services.FormatUserToBeautifullMsg(Services.GetUserPersonage(msg.chat.id)), reply_markup=menuKb)
 
 
 if __name__ == '__main__':

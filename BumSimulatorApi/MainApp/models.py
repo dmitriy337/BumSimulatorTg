@@ -196,7 +196,7 @@ class Personage(models.Model):
                                   , verbose_name='Personage transport')
 
     def __str__(self):
-        return str(self.id)
+        return f"{str(self.id)} 💸:{str(self.money)}  ❤:{str(self.health_level)} 🍆:{str(self.eat_level)} 😁:{str(self.happy_level)}"
 
     class Meta:
         verbose_name_plural = 'Персонажи'
@@ -210,16 +210,22 @@ class Personage(models.Model):
 
 class User(models.Model):
     Id = models.IntegerField(unique=True, null=False)
-    Username = models.TextField(max_length=100, null=True, verbose_name='User Name')
-    Firstname = models.TextField(max_length=100, null=True, verbose_name='First Name')
-    LastName = models.TextField(max_length=100, null=True, verbose_name='Last Name')
+    Username = models.TextField(max_length=100, null=True, blank=True, verbose_name='User Name')
+    Firstname = models.TextField(max_length=100, null=True, blank=True, verbose_name='First Name')
+    LastName = models.TextField(max_length=100, null=True, blank=True, verbose_name='Last Name')
     Character = models.OneToOneField(Personage,
         on_delete = models.CASCADE,
         primary_key = True,
         default=Personage.get_new)
 
     def __str__(self):
-        return  ('@' +self.Username + ' ' + self.Firstname)
+        if self.Username != None and self.Firstname:
+            return ("@"+str(self.Username)+'   '+str(self.Firstname))
+        if self.Username != None and self.LastName:
+            return ("@"+str(self.Username)+'    '+str(self.LastName))
+        if self.Firstname != None and self.LastName:
+            return (str(self.Firstname)+' '+str(self.LastName))
+        return str(self.Id)
 
     class Meta:
         verbose_name_plural = 'Пользователи'

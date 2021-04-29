@@ -12,7 +12,7 @@ urlpatterns = [
     path('get_houses', GetAllHouses.as_view()),
     path('get_learnings', GetAllLearnings.as_view()),
     path('get_transports', GetAllTransports.as_view()),
-
+    path('delete_user/userId=<int:userId>', Delete_user.as_view()),
     path('get_normal_work', GetAllNormalWork.as_view()),
     path('get_personage_work', GetAllPersonageWork.as_view()),
 
