@@ -17,7 +17,7 @@ lol = lambda lst, sz: [lst[i:i+sz] for i in range(0, len(lst), sz)]
 
 
 
-# keyboards.py
+# Menu keyboards.py
 inline_btn_profile = InlineKeyboardButton('Герой👨‍🦰', callback_data='btnM_Profile')
 inline_btn_health = InlineKeyboardButton('Здоровье❤️', callback_data='btnM_Health')
 inline_btn_eat = InlineKeyboardButton('Еда🍆', callback_data='btnM_Eat')
@@ -26,6 +26,7 @@ inline_btn_earn_money = InlineKeyboardButton('Заработок💸', callback_
 menuKb = InlineKeyboardMarkup(row_width=3).add(inline_btn_profile)
 menuKb.row(inline_btn_health, inline_btn_eat, inline_btn_happy, )
 menuKb.row(inline_btn_earn_money)
+
 
 
 inline_btn_BumWork = InlineKeyboardButton('Бродяжничество', callback_data='btnM_BumWork')
@@ -50,6 +51,11 @@ async def NotRegistered(userId):
     await bot.send_message(userId, "Вы не зарегестрированны\nОтправьте /start для регистрации))")
 
 
+async def Вeath(userId):
+    await bot.send_message(userId, "Ваша душа навсегда покидает это бренное тело бомжа, однако, вы всегда можете возродится в этом жестоком мире, в новой оболочке. Для начала отправьте /start")
+    return 0
+
+
 @dp.callback_query_handler(regexp='^btnM_')
 async def process_callback_button1(callback_query: types.CallbackQuery):
     if Services.GetUserPersonage(callback_query.from_user.id) == "NotRegistered":
@@ -57,7 +63,7 @@ async def process_callback_button1(callback_query: types.CallbackQuery):
         return 0
 
     if callback_query.data == 'btnM_Profile':
-        await bot.send_message(callback_query.from_user.id, Services.FormatUserToBeautifullMsg(Services.GetUserPersonage(callback_query.from_user.id)))
+        await callback_query.message.edit_text( Services.FormatUserProfileToBeautifullMsg(Services.GetUserPersonage(callback_query.from_user.id)))
 
         
     elif callback_query.data == 'btnM_Eat':
@@ -90,7 +96,7 @@ async def process_callback_button1(callback_query: types.CallbackQuery):
 @dp.callback_query_handler(regexp='^eat_')
 async def process_callback_button1(callback_query: types.CallbackQuery):
     if Services.GetUserPersonage(callback_query.from_user.id) == "NotRegistered":
-        NotRegistered(callback_query.from_user.id)
+        await NotRegistered(callback_query.from_user.id)
         return 0
 
     executeResult = await Services.ExecuteEatActivity(eatId=callback_query.data.replace('eat_',''), userId=callback_query.from_user.id)
@@ -98,25 +104,35 @@ async def process_callback_button1(callback_query: types.CallbackQuery):
         await bot.answer_callback_query(callback_query.id, text="Тебе не хватает денег на это))", show_alert=True)
     elif executeResult == 'Eat_die':
         await bot.answer_callback_query(callback_query.id, text="Ты помер с голоду)))", show_alert=True)
+        await Вeath(callback_query.from_user.id)
     elif executeResult == 'Health_die':
         await bot.answer_callback_query(callback_query.id, text="Ты помер)))", show_alert=True)
-        await bot.send_chat_action(callback_query.from_user.id, types.ChatActions.TYPING)
-        await bot.send_message(callback_query.from_user.id, "/start")
+        await Вeath(callback_query.from_user.id)
     elif executeResult == 'Happy_die':
         await bot.answer_callback_query(callback_query.id, text="Ты повесился))))", show_alert=True)
-    else:        
+        await Вeath(callback_query.from_user.id)
+    else:
         await callback_query.message.edit_text(Services.FormatUserToBeautifullMsg(Services.GetUserPersonage(callback_query.from_user.id)),
             reply_markup=CreateEatMurkup())
 
 @dp.callback_query_handler(regexp='^happy_')
 async def process_callback_button1(callback_query: types.CallbackQuery):
     if Services.GetUserPersonage(callback_query.from_user.id) == "NotRegistered":
-        NotRegistered(callback_query.from_user.id)
+        await NotRegistered(callback_query.from_user.id)
         return 0
 
     executeResult = await Services.ExecuteHappyActivity(happyId=callback_query.data.replace('happy_',''), userId=callback_query.from_user.id)
     if executeResult == 'NotHaveMoney':
         await bot.answer_callback_query(callback_query.id, text="Тебе не хватает денег на это))", show_alert=True)
+    elif executeResult == 'Eat_die':
+        await bot.answer_callback_query(callback_query.id, text="Ты помер с голоду)))", show_alert=True)
+        await Вeath(callback_query.from_user.id)
+    elif executeResult == 'Health_die':
+        await bot.answer_callback_query(callback_query.id, text="Ты помер)))", show_alert=True)
+        await Вeath(callback_query.from_user.id)
+    elif executeResult == 'Happy_die':
+        await bot.answer_callback_query(callback_query.id, text="Ты повесился))))", show_alert=True)
+        await Вeath(callback_query.from_user.id)
     else:        
         await callback_query.message.edit_text(Services.FormatUserToBeautifullMsg(Services.GetUserPersonage(callback_query.from_user.id)),
             reply_markup=CreateHappyMurkup())
@@ -125,13 +141,22 @@ async def process_callback_button1(callback_query: types.CallbackQuery):
 @dp.callback_query_handler(regexp='^health_')
 async def process_callback_button1(callback_query: types.CallbackQuery):
     if Services.GetUserPersonage(callback_query.from_user.id) == "NotRegistered":
-        NotRegistered(callback_query.from_user.id)
+        await NotRegistered(callback_query.from_user.id)
         return 0
 
     executeResult = await Services.ExecuteHealthActivity(healthId=callback_query.data.replace('health_',''), userId=callback_query.from_user.id)
 
     if executeResult == 'NotHaveMoney':
         await bot.answer_callback_query(callback_query.id, text="Тебе не хватает денег на это)", show_alert=True)
+    elif executeResult == 'Eat_die':
+        await bot.answer_callback_query(callback_query.id, text="Ты помер с голоду)))", show_alert=True)
+        await Вeath(callback_query.from_user.id)
+    elif executeResult == 'Health_die':
+        await bot.answer_callback_query(callback_query.id, text="Ты помер)))", show_alert=True)
+        await Вeath(callback_query.from_user.id)
+    elif executeResult == 'Happy_die':
+        await bot.answer_callback_query(callback_query.id, text="Ты повесился))))", show_alert=True)
+        await Вeath(callback_query.from_user.id)
     else:        
         await callback_query.message.edit_text(Services.FormatUserToBeautifullMsg(Services.GetUserPersonage(callback_query.from_user.id)),
             reply_markup=CreateHealthMurkup())
@@ -184,7 +209,7 @@ def CreateHealthMurkup():
 @dp.message_handler()
 async def echo_message(msg: types.Message):
     if Services.GetUserPersonage(msg.from_user.id) == "NotRegistered":
-        NotRegistered(msg.from_user.id)
+        await NotRegistered(msg.from_user.id)
         return 0
 
     await bot.send_message(msg.chat.id, Services.FormatUserToBeautifullMsg(Services.GetUserPersonage(msg.chat.id)), reply_markup=menuKb)

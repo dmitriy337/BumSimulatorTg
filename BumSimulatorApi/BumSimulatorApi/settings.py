@@ -25,9 +25,26 @@ SECRET_KEY = 'django-insecure-t$9*g+#-xb^mka8qhc@*ltvf(r^fsf8+kh!*2spe^l5etd_n^c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['vuhiza.hopto.org']
 
-
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
 # Application definition
 
 INSTALLED_APPS = [
@@ -37,7 +54,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'MainApp'
+    'MainApp',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -77,10 +95,10 @@ WSGI_APPLICATION = 'BumSimulatorApi.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': '<Name of db>',
-        'USER' : '<Name of user>',
-        'PASSWORD' : '<Password>',
-        'HOST' : '<Host>',
+        'NAME': 'TestDbForBums',
+        'USER' : 'postgres',
+        'PASSWORD' : '135798642Qq',
+        'HOST' : '192.168.0.108',
         'PORT' : '5432',
  }}
 

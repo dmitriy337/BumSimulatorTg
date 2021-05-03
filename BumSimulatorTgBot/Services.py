@@ -27,11 +27,12 @@ def FormatUserToBeautifullMsg(usr: json):
     resultString = ''
     if usr['user']:
         Character = usr['user']['Character']
-        resultString += '💸Money: '+str(Character['money'])+'  '
-        resultString += '🍾Bottles: '+str(Character['items'])+'\n'
-        resultString += '❤️Health: '+str(Character['health_level'])+'/100'+'  ' 
-        resultString += '🍆Eat: '+str(Character['eat_level'])+'/100'+'\n'
-        resultString += '😁Happy: '+str(Character['happy_level'])+'/100'+'\n'
+        resultString += '💸: '+str(Character['money'])+'   '
+        resultString += '🍾: '+str(Character['items'])+'   '
+        resultString += '🏅: '+str(Character['rating'])+'\n'
+        resultString += '❤️: '+str(Character['health_level'])+'/100'+'  ' 
+        resultString += '🍽: '+str(Character['eat_level'])+'/100'+'  '
+        resultString += '😁: '+str(Character['happy_level'])+'/100'+'\n'
     return resultString
 
 
@@ -39,7 +40,7 @@ def FormatUserProfileToBeautifullMsg(usr: json):
     resultString = ''
     if usr['user']:
         Character = usr['user']['Character']
-        resultString += 'Age: '+str(Character['age'])+'\n'
+        resultString += 'Age: '+str(Character['status'])+'\n'
         resultString += 'Money: '+str(Character['money'])+'\n'
         resultString += 'Bottles: '+str(Character['items'])+'\n'
         resultString += 'Rating: '+str(Character['rating'])+'\n'

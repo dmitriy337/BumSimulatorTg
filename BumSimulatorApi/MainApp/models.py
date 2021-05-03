@@ -4,12 +4,13 @@ import datetime
 
 
 class StatusOfBum(models.TextChoices):
-    Bum_0 = ('0','Бомж')
-    Bum_1 = ('1','Младший бомж')
-    Bum_2 = ('2','Нищеброд')
-    Bum_3 = ('3','Босяк')
-    Bum_4 = ('4','Старший бомж')
-    Bum_5 = ('5','Искатель счастья')
+    Bum_0 = ('Бомж')
+    Bum_1 = ('Младший бомж')
+    Bum_2 = ('Нищеброд')
+    Bum_3 = ('Босяк')
+    Bum_4 = ('Старший бомж')
+    Bum_5 = ('Искатель счастья')
+
 
 
 class Eat_activity(models.Model):
@@ -181,7 +182,7 @@ class Personage(models.Model):
     items = models.IntegerField(default=10, verbose_name='Count of bottles')
     rating = models.IntegerField(default=0, verbose_name='Rating')
     status = models.CharField(
-        max_length=2,
+        max_length=200,
         choices=StatusOfBum.choices,
         default=StatusOfBum.Bum_0,
     )
@@ -190,6 +191,7 @@ class Personage(models.Model):
     happy_level = models.IntegerField(default=100, null=False, verbose_name='Happy level')
     eat_level = models.IntegerField(default=100, null=False, verbose_name='Happy level')
     health_level = models.IntegerField(default=100, null=False, verbose_name='Happy level')
+    courseItemToMoney = models.IntegerField(default=5, null=False, verbose_name='Курс предмета к рублю')
     house = models.ForeignKey(Houses, null=True, blank=True, on_delete=models.PROTECT
                               , verbose_name='Personage house')
     transport = models.ForeignKey(Transports, null=True, blank=True, on_delete=models.PROTECT
@@ -231,3 +233,5 @@ class User(models.Model):
         verbose_name_plural = 'Пользователи'
         verbose_name = 'Пользователь'
         ordering = ['Username']
+
+
