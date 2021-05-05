@@ -21,8 +21,7 @@ def GetUserPersonage(userId: int,) -> json:
     if r.content.decode('utf-8').count('Not found') > 0:
         return "NotRegistered"
     return j
-
-
+ 
 def FormatUserToBeautifullMsg(usr: json):
     resultString = ''
     if usr['user']:

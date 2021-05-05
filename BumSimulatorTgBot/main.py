@@ -39,9 +39,11 @@ inline_btn_NormalWork = InlineKeyboardButton('Нормальная работа'
 async def process_start_command(message: types.Message):
     Msg = await  bot.send_message(message.chat.id,"Начинаю регистрацию...")
     await bot.send_chat_action(message.chat.id, types.ChatActions.TYPING)
+
     Services.RegisterNewUser(message.from_user.id, message.from_user.username, message.from_user.first_name, message.from_user.last_name)
+
     await Msg.edit_text('Зарегестрирован!')
-    #await bot.send_message(message.chat.id, 'Зарегестрирован!')
+
     await asyncio.sleep(3)
     JsonR = Services.GetUserPersonage(message.chat.id)
     await bot.send_message(message.chat.id, Services.FormatUserToBeautifullMsg(JsonR), reply_markup=menuKb)
